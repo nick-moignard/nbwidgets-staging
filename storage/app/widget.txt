@@ -1,0 +1,1070 @@
+const myHeaders = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+};
+let pdfLogo;
+let dominolink = {};
+const divContainer = '.directory-listing';
+const styles = '.tooltip-js { position: relative; display: inline-block; border-bottom: 1px dotted black; } .tooltip-js .tooltiptext { visibility: hidden; font-size: 12px; max-width: 184px; background-color: #FF9720; color: #fff; text-align: center; border-radius: 6px; padding: 8px; position: absolute; z-index: 1; bottom: 125%; left: 0; margin-left: -60px; opacity: 0; transition: opacity 0.3s; font-weight: 300; } .tooltip-js .tooltiptext::after { content: ""; position: absolute; top: 100%; left: 60%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #FF9720 transparent transparent transparent;} .tooltip-js:hover .tooltiptext { visibility: visible; opacity: 1; }';
+var jsonData, searchjsonData, exportPDF_canvas, img_logo_data, imgData, curPage = 1,
+    totalPage = 1,
+    totalCnt = 0,
+    searchMode = 0,
+    searchcurPage = 1,
+    searchtotalPage = 1,
+    pdf_intro = "",
+    pdf_declaimer = "",
+    pdf_back_color = "black",
+    pdf_logo = "",
+    img_logo_data_width = 0,
+    img_logo_data_height = 0,
+    isoStates = {
+        AL: "Alabama",
+        AK: "Alaska",
+        AS: "American Samoa",
+        AZ: "Arizona",
+        AR: "Arkansas",
+        CA: "California",
+        CO: "Colorado",
+        CT: "Connecticut",
+        DE: "Delaware",
+        DC: "District of Columbia",
+        FL: "Florida",
+        GA: "Georgia",
+        GU: "Guam",
+        HI: "Hawaii",
+        ID: "Idaho",
+        IL: "Illinois",
+        IN: "Indiana",
+        IA: "Iowa",
+        KS: "Kansas",
+        KY: "Kentucky",
+        LA: "Louisiana",
+        ME: "Maine",
+        MD: "Maryland",
+        MA: "Massachusetts",
+        MI: "Michigan",
+        MN: "Minnesota",
+        MS: "Mississippi",
+        MO: "Missouri",
+        MT: "Montana",
+        NE: "Nebraska",
+        NV: "Nevada",
+        NH: "New Hampshire",
+        NJ: "New Jersey",
+        NM: "New Mexico",
+        NY: "New York",
+        NC: "North Carolina",
+        ND: "North Dakota",
+        MP: "Northern Mariana Is",
+        OH: "Ohio",
+        OK: "Oklahoma",
+        OR: "Oregon",
+        PA: "Pennsylvania",
+        PR: "Puerto Rico",
+        RI: "Rhode Island",
+        SC: "South Carolina",
+        SD: "South Dakota",
+        TN: "Tennessee",
+        TX: "Texas",
+        UT: "Utah",
+        VT: "Vermont",
+        VA: "Virginia",
+        VI: "Virgin Isalands",
+        WA: "Washington",
+        WV: "West Virginia",
+        WI: "Wisconsin",
+        WY: "Wyoming"
+    },
+    isoCountries = {
+        AF: "Afghanistan",
+        AX: "Aland Islands",
+        AL: "Albania",
+        DZ: "Algeria",
+        AS: "American Samoa",
+        AD: "Andorra",
+        AO: "Angola",
+        AI: "Anguilla",
+        AQ: "Antarctica",
+        AG: "Antigua And Barbuda",
+        AR: "Argentina",
+        AM: "Armenia",
+        AW: "Aruba",
+        AU: "Australia",
+        AT: "Austria",
+        AZ: "Azerbaijan",
+        BS: "Bahamas",
+        BH: "Bahrain",
+        BD: "Bangladesh",
+        BB: "Barbados",
+        BY: "Belarus",
+        BE: "Belgium",
+        BZ: "Belize",
+        BJ: "Benin",
+        BM: "Bermuda",
+        BT: "Bhutan",
+        BO: "Bolivia",
+        BA: "Bosnia And Herzegovina",
+        BW: "Botswana",
+        BV: "Bouvet Island",
+        BR: "Brazil",
+        IO: "British Indian Ocean Territory",
+        BN: "Brunei Darussalam",
+        BG: "Bulgaria",
+        BF: "Burkina Faso",
+        BI: "Burundi",
+        KH: "Cambodia",
+        CM: "Cameroon",
+        CA: "Canada",
+        CV: "Cape Verde",
+        KY: "Cayman Islands",
+        CF: "Central African Republic",
+        TD: "Chad",
+        CL: "Chile",
+        CN: "China",
+        CX: "Christmas Island",
+        CC: "Cocos (Keeling) Islands",
+        CO: "Colombia",
+        KM: "Comoros",
+        CG: "Congo",
+        CD: "Congo, Democratic Republic",
+        CK: "Cook Islands",
+        CR: "Costa Rica",
+        CI: "Cote D'Ivoire",
+        HR: "Croatia",
+        CU: "Cuba",
+        CY: "Cyprus",
+        CZ: "Czech Republic",
+        DK: "Denmark",
+        DJ: "Djibouti",
+        DM: "Dominica",
+        DO: "Dominican Republic",
+        EC: "Ecuador",
+        EG: "Egypt",
+        SV: "El Salvador",
+        GQ: "Equatorial Guinea",
+        ER: "Eritrea",
+        EE: "Estonia",
+        ET: "Ethiopia",
+        FK: "Falkland Islands (Malvinas)",
+        FO: "Faroe Islands",
+        FJ: "Fiji",
+        FI: "Finland",
+        FR: "France",
+        GF: "French Guiana",
+        PF: "French Polynesia",
+        TF: "French Southern Territories",
+        GA: "Gabon",
+        GM: "Gambia",
+        GE: "Georgia",
+        DE: "Germany",
+        GH: "Ghana",
+        GI: "Gibraltar",
+        GR: "Greece",
+        GL: "Greenland",
+        GD: "Grenada",
+        GP: "Guadeloupe",
+        GU: "Guam",
+        GT: "Guatemala",
+        GG: "Guernsey",
+        GN: "Guinea",
+        GW: "Guinea-Bissau",
+        GY: "Guyana",
+        HT: "Haiti",
+        HM: "Heard Island & Mcdonald Islands",
+        VA: "Holy See (Vatican City State)",
+        HN: "Honduras",
+        HK: "Hong Kong",
+        HU: "Hungary",
+        IS: "Iceland",
+        IN: "India",
+        ID: "Indonesia",
+        IR: "Iran, Islamic Republic Of",
+        IQ: "Iraq",
+        IE: "Ireland",
+        IM: "Isle Of Man",
+        IL: "Israel",
+        IT: "Italy",
+        JM: "Jamaica",
+        JP: "Japan",
+        JE: "Jersey",
+        JO: "Jordan",
+        KZ: "Kazakhstan",
+        KE: "Kenya",
+        KI: "Kiribati",
+        KR: "Korea",
+        KW: "Kuwait",
+        KG: "Kyrgyzstan",
+        LA: "Lao People's Democratic Republic",
+        LV: "Latvia",
+        LB: "Lebanon",
+        LS: "Lesotho",
+        LR: "Liberia",
+        LY: "Libyan Arab Jamahiriya",
+        LI: "Liechtenstein",
+        LT: "Lithuania",
+        LU: "Luxembourg",
+        MO: "Macao",
+        MK: "Macedonia",
+        MG: "Madagascar",
+        MW: "Malawi",
+        MY: "Malaysia",
+        MV: "Maldives",
+        ML: "Mali",
+        MT: "Malta",
+        MH: "Marshall Islands",
+        MQ: "Martinique",
+        MR: "Mauritania",
+        MU: "Mauritius",
+        YT: "Mayotte",
+        MX: "Mexico",
+        FM: "Micronesia, Federated States Of",
+        MD: "Moldova",
+        MC: "Monaco",
+        MN: "Mongolia",
+        ME: "Montenegro",
+        MS: "Montserrat",
+        MA: "Morocco",
+        MZ: "Mozambique",
+        MM: "Myanmar",
+        NA: "Namibia",
+        NR: "Nauru",
+        NP: "Nepal",
+        NL: "Netherlands",
+        AN: "Netherlands Antilles",
+        NC: "New Caledonia",
+        NZ: "New Zealand",
+        NI: "Nicaragua",
+        NE: "Niger",
+        NG: "Nigeria",
+        NU: "Niue",
+        NF: "Norfolk Island",
+        MP: "Northern Mariana Islands",
+        NO: "Norway",
+        OM: "Oman",
+        PK: "Pakistan",
+        PW: "Palau",
+        PS: "Palestinian Territory, Occupied",
+        PA: "Panama",
+        PG: "Papua New Guinea",
+        PY: "Paraguay",
+        PE: "Peru",
+        PH: "Philippines",
+        PN: "Pitcairn",
+        PL: "Poland",
+        PT: "Portugal",
+        PR: "Puerto Rico",
+        QA: "Qatar",
+        RE: "Reunion",
+        RO: "Romania",
+        RU: "Russian Federation",
+        RW: "Rwanda",
+        BL: "Saint Barthelemy",
+        SH: "Saint Helena",
+        KN: "Saint Kitts And Nevis",
+        LC: "Saint Lucia",
+        MF: "Saint Martin",
+        PM: "Saint Pierre And Miquelon",
+        VC: "Saint Vincent And Grenadines",
+        WS: "Samoa",
+        SM: "San Marino",
+        ST: "Sao Tome And Principe",
+        SA: "Saudi Arabia",
+        SN: "Senegal",
+        RS: "Serbia",
+        SC: "Seychelles",
+        SL: "Sierra Leone",
+        SG: "Singapore",
+        SK: "Slovakia",
+        SI: "Slovenia",
+        SB: "Solomon Islands",
+        SO: "Somalia",
+        ZA: "South Africa",
+        GS: "South Georgia And Sandwich Isl.",
+        ES: "Spain",
+        LK: "Sri Lanka",
+        SD: "Sudan",
+        SR: "Suriname",
+        SJ: "Svalbard And Jan Mayen",
+        SZ: "Swaziland",
+        SE: "Sweden",
+        CH: "Switzerland",
+        SY: "Syrian Arab Republic",
+        TW: "Taiwan",
+        TJ: "Tajikistan",
+        TZ: "Tanzania",
+        TH: "Thailand",
+        TL: "Timor-Leste",
+        TG: "Togo",
+        TK: "Tokelau",
+        TO: "Tonga",
+        TT: "Trinidad And Tobago",
+        TN: "Tunisia",
+        TR: "Turkey",
+        TM: "Turkmenistan",
+        TC: "Turks And Caicos Islands",
+        TV: "Tuvalu",
+        UG: "Uganda",
+        UA: "Ukraine",
+        AE: "United Arab Emirates",
+        GB: "United Kingdom",
+        US: "United States",
+        UM: "United States Outlying Islands",
+        UY: "Uruguay",
+        UZ: "Uzbekistan",
+        VU: "Vanuatu",
+        VE: "Venezuela",
+        VN: "Viet Nam",
+        VG: "Virgin Islands, British",
+        VI: "Virgin Islands, U.S.",
+        WF: "Wallis And Futuna",
+        EH: "Western Sahara",
+        YE: "Yemen",
+        ZM: "Zambia",
+        ZW: "Zimbabwe"
+    };
+
+function init() {
+    var o = document.querySelector(divContainer);
+    dominolink.itemsPerPage = dominolink.itemsPerPage ? dominolink.itemsPerPage : 50;
+    dominolink.show_options = {};
+    a = "";
+    a += '<div class="container mycontainer" style="margin-top:20px;width:100%;">', "true" == %%%SHOW_SEARCH%%% && (a += addSearchContent()), a += '<div id="peopleList" class="row" style="margin-left: 5px;margin-right: 5px;margin-top: 30px;">', a += "</div>", a += '<div id="loaderModal" style="display:none;position:fixed;top:54%;left:47%;"></div>', a += '<div id="pagination" class="row" style="margin-left: 5px;margin-right: 5px;margin-top: 30px;">', a += '<button class="btn btn-success gotoNextPage" style="float:right;margin-right:10px;">Next</button>', a += '<input type="text" class="form-control" style="float:right;text-align:center;width:50px !important;min-width:50px !important;margin-right:10px;" id="pagenum" value="" />', a += '<button class="btn btn-success gotoPrevPage" style="float:right;margin-right:10px;">Prev</button>', a += "</div>";
+    var e = "rgb(255,255,255)";
+    "dark" == %%%THEME%%% && (e = "rgb(30,30,30)");
+    var t = "rgb(244,244,244)";
+    "dark" == %%%THEME%%% && (t = "rgb(50,50,50)"), a += '<div class="modal fade bs-modal-lg" id="personDetail" style="overflow-y:auto;" tabindex="-1" role="dialog" aria-hidden="true">', a += '<div class="vertical-alignment-helper">', a += '<div class="modal-dialog modal-lg model-size vertical-align-center">', a += '<div class="my-modal-content modal-content" style="background:' + e + '">', a += '<div class="modal-header">', a += "</div>", a += '<div class="modal-body">', a += '<div class="row">', a += '<div class="col-md-4">', a += '<div style="background-color: ' + t + ';">', a += '<div class="row" style="margin-top: 10px;">', a += '<center><img id="person_image" style="margin-top: 10px;" src="" height="60px;" /></center>', a += "</div>", a += '<div class="row" style="margin-top: 10px;">', a += '<center><b><span id="person_name" style="font-size:14px;"></span></b></center>', a += "</div>", a += '<div class="row" style="margin-top: 6px;color: grey">', a += '<center><p style="font-size:14px;"><span id="person_icon" style="font-size:14px;"></span><span id="person_twitter" style="font-size:14px;"></span><span id="person_facebook" style="font-size:14px;"></span></p></center>', a += "</div>", a += '<div class="row" style="color:grey;">', a += '<div class="col-md-12" style="word-wrap: break-word;">', a += '<p><center><span id="person_occupation" style="font-size:14px;text-transform:capitalize"></span></center></p>', a += '<p><center style="font-size:14px;"><span id="person_country"></span></center></p>', a += '<p><center style="font-size:14px;"><span id="person_industry"></span></center></p>', a += '<p><center style="font-size:14px;"><span id="person_boards"></span></center></p>', a += "</div>", a += "</div>", a += "</div>", a += "</div>", a += '<div class="col-md-8" style="max-height: 400px; overflow-y: scroll">', a += '<div style="background-color: ' + t + ';">', a += '<div class="row" style="margin-top: 10px;margin-left: 5px;">', a += '<div class="col-md-12" style="margin-top: 10px;">', a += "<p><b>Contact information</b></p>", a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_email" style="font-size:14px;"></span>', a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_phone" style="font-size:14px;"></span>', a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_work_phone" style="font-size:14px;"></span>', a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_mobile" style="font-size:14px;"></span>', a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_city" style="font-size:14px;"></span>', a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_home_address" style="font-size:14px;"></span>', a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_work_address" style="font-size:14px;"></span>', a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_assist_name" style="font-size:14px;"></span>', a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_assist_phone" style="font-size:14px;"></span>', a += "</div>", a += '<div class="col-md-12" style="color:grey;">', a += '<span id="person_assist_email" style="font-size:14px;"></span>', a += "</div>", a += "</div>", a += "</div>", a += '<div class="row mybio" style="background-color: ' + t + ';margin-top:10px;margin-left:0px;margin-right:0px;">', a += '<div class="col-md-12" style="margin-top: 10px;">', a += "<p><b>About me</b></p>", a += "</div>", a += '<div class="col-md-12" style="margin-top: 10px;">', a += '<p style="color:grey;font-size:14px;" id="person_bio"></p>', a += "</div>", a += "</div>", a += "</div>", a += "</div>", a += "</div>", a += '<div class="modal-footer">', a += '<button type="button" class="btn btn-success" data-dismiss="modal" onclick="hidePersonDetail()">Close</button>', a += "</div>", a += "</div>", a += "</div>", a += "</div>", a += "</div>";
+    a += "</div>", o.innerHTML = a, "light" == %%%THEME%%% ? (document.querySelector(".mycontainer").style.backgroundColor = 'white', document.querySelector(".mycontainer").style.color = 'black') : "dark" == %%%THEME%%% && (document.querySelector(".mycontainer").style.backgroundColor = 'black', document.querySelector(".mycontainer").style.color = 'white'),
+        fetch("%%%URL_SITE%%%/api/getPDFDetail", {
+            method: 'POST',
+            headers: myHeaders,
+            body: JSON.stringify({
+                "nation_id": %%%NATION_ID%%%
+            })
+        }).then(response => response.json()).then(response => {
+            var a = response.data;
+            if (a.hq === 1){
+                document.querySelector('#forumSelect').style.display = 'block';
+            }
+            dominolink.show_options = JSON.parse(a.show_options);
+            pdf_intro = a.intro != null ? a.intro: '', pdf_declaimer = a.disclaimer != null ? a.disclaimer: '' , pdf_back_color = a.report_color, pdf_logo = a.logo;
+            var e = (totalCnt = a.people_count) % 50;
+            totalPage = (totalCnt - e) / 50, e && totalPage++, setCallPeopleUrl_New()
+        }).catch(error => console.error('Error:', error))/*, "iwf" != dominolink.nationSlug && (document.querySelector("#search_forum").style.display = "none")*/;
+    var i = document.createElement("script");
+    i.type = "text/javascript", i.src = "%%%URL_SITE%%%/assets/jspdf.js", document.getElementsByTagName("head")[0].appendChild(i);
+    var n = document.createElement("script");
+    n.type = "text/javascript", n.src = "%%%URL_SITE%%%/assets/fuse.js", document.getElementsByTagName("head")[0].appendChild(n)
+}
+
+function changeIndustry() {
+    "" == document.querySelector("#search_industry").value ? (document.querySelector("#search_industry").style.color = "grey") : (document.querySelector("#search_industry").style.color = "#555555");
+}
+
+function changeForum() {
+    "" == document.querySelector("#search_forum").value ? (document.querySelector("#search_forum").style.color = "grey") : (document.querySelector("#search_forum").style.color = "#555555")
+}
+
+function addSearchContent() {
+    var o = "",
+        a = "rgb(244,244,244)";
+    return "dark" == %%%THEME%%% && (a = "rgb(30,30,30)"), o += '<div class="row" style="background-color: ' + a + ';margin-left: 5px;margin-right: 5px;">', o += '<div class="col-md-12">', o += '<h3 style="color:rgb(92, 127, 146);"><i class="fa fa-search"></i> <b>Member Search</b></h3>', o += '<div style="margin-top: 20px;"></div>', o += "</div>", o += '<div class="col-md-4 col-sm-4 col-xs-6">', o += '<input type="text" class="form-control" id="search_first_name" placeholder="First Name" style="max-width: 250px;margin-bottom: 20px;" />', o += "</div>", o += '<div class="col-md-4 col-sm-4 col-xs-6">', o += '<input type="text" class="form-control" id="search_last_name" placeholder="Last Name" style="max-width: 250px;margin-bottom: 20px;" />', o += "</div>", o += '<div class="col-md-4 col-sm-4 col-xs-6" id="forumSelect" style="display:none">', o += '<select id="search_forum" onchange="changeForum()" placeholder="Select Forum..." class="form-control form-item__element form-item__element--select" style="max-width: 250px;margin-bottom: 20px;color:grey;">', o += '<option selected value="">Select Forum</option>', o += '<option value="Forum:Alabama">Alabama</option>', o += '<option value="Forum:Argentina">Argentina</option>', o += '<option value="Forum:Arizona">Arizona</option>', o += '<option value="Forum:Arkansas">Arkansas</option>', o += '<option value="Forum:Australia">Australia</option>', o += '<option value="Forum:Austria">Austria</option>', o += '<option value="Forum:Bahamas">Bahamas</option>', o += '<option value="Forum:Barbados">Barbados</option>', o += '<option value="Forum:Bermuda">Bermuda</option>', o += '<option value="Forum:British Columbia">British Columbia</option>', o += '<option value="Forum:Canada">Canada</option>', o += '<option value="Forum:Carolinas">Carolinas</option>', o += '<option value="Forum:Chicago">Chicago</option>', o += '<option value="Forum:Chile">Chile</option>', o += '<option value="Forum:Colorado">Colorado</option>', o += '<option value="Forum:Connecticut">Connecticut</option>', o += '<option value="Forum:Dallas">Dallas</option>', o += '<option value="Forum:Delaware">Delaware</option>', o += '<option value="Forum:Ecuador">Ecuador</option>', o += '<option value="Forum:Finland">Finland</option>', o += '<option value="Forum:Fla-Suncoast">Fla-Suncoast</option>', o += '<option value="Forum:Florida">Florida</option>', o += '<option value="Forum:France">France</option>', o += '<option value="Forum:Georgia">Georgia</option>', o += '<option value="Forum:Germany">Germany</option>', o += '<option value="Forum:Ghana">Ghana</option>', o += '<option value="Forum:Hawaii">Hawaii</option>', o += '<option value="Forum:Hong Kong">Hong Kong</option>', o += '<option value="Forum:Idaho">Idaho</option>', o += '<option value="Forum:Ireland">Ireland</option>', o += '<option value="Forum:Israel">Israel</option>', o += '<option value="Forum:Italy">Italy</option>', o += '<option value="Forum:Jamaica">Jamaica</option>', o += '<option value="Forum:Jordan">Jordan</option>', o += '<option value="Forum:Kansas">Kansas</option>', o += '<option value="Forum:Kentucky">Kentucky</option>', o += '<option value="Forum:Lebanon">Lebanon</option>', o += '<option value="Forum:Louisiana">Louisiana</option>', o += '<option value="Forum:Maine">Maine</option>', o += '<option value="Forum:Massachusetts">Massachusetts</option>', o += '<option value="Forum:Mexico">Mexico</option>', o += '<option value="Forum:Michigan">Michigan</option>', o += '<option value="Forum:Minnesota">Minnesota</option>', o += '<option value="Forum:Mississippi">Mississippi</option>', o += '<option value="Forum:Missouri">Missouri</option>', o += '<option value="Forum:Montana">Montana</option>', o += '<option value="Forum:New Jersey">New Jersey</option>', o += '<option value="Forum:New Mexico">New Mexico</option>', o += '<option value="Forum:New York">New York</option>', o += '<option value="Forum:New Zealand">New Zealand</option>', o += '<option value="Forum:Northern California">Northern California</option>', o += '<option value="Forum:Ohio">Ohio</option>', o += '<option value="Forum:Oklahoma">Oklahoma</option>', o += '<option value="Forum:Oregon">Oregon</option>', o += '<option value="Forum:Palm Beach">Palm Beach</option>', o += '<option value="Forum:Panama">Panama</option>', o += '<option value="Forum:Pennsylvania">Pennsylvania</option>', o += '<option value="Forum:Pittsburgh">Pittsburgh</option>', o += '<option value="Forum:Russia">Russia</option>', o += '<option value="Forum:Singapore">Singapore</option>', o += '<option value="Forum:South Africa">South Africa</option>', o += '<option value="Forum:Southern California">Southern California</option>', o += '<option value="Forum:Spain">Spain</option>', o += '<option value="Forum:Staff">Staff</option>', o += '<option value="Forum:Sweden">Sweden</option>', o += '<option value="Forum:Tennessee">Tennessee</option>', o += '<option value="Forum:Texas">Texas</option>', o += '<option value="Forum:Trinidad & Tobago">Trinidad & Tobago</option>', o += '<option value="Forum:Turkey">Turkey</option>', o += '<option value="Forum:United Kingdom">United Kingdom</option>', o += '<option value="Forum:Utah">Utah</option>', o += '<option value="Forum:Vermont">Vermont</option>', o += '<option value="Forum:Washington DC">Washington DC</option>', o += '<option value="Forum:Washington State">Washington State</option>', o += '<option value="Forum:Wisconsin">Wisconsin</option>', o += "</select>", o += "</div>", o += '<div class="col-md-4 col-sm-4 col-xs-6">', o += '<select id="search_industry" onchange="changeIndustry()" placeholder="Select Industry..." class="form-control form-item__element form-item__element--select" style="max-width: 250px;margin-bottom: 20px;color:grey;">', o += '<option selected value="">Industry ...</option>', o += '<option value="Accommodations">Accommodations</option>', o += '<option value="Accounting">Accounting</option>', o += '<option value="Advertising">Advertising</option>', o += '<option value="Aerospace">Aerospace</option>', o += '<option value="Agriculture & Agribusiness">Agriculture & Agribusiness</option>', o += '<option value="Air Transportation">Air Transportation</option>', o += '<option value="Apparel & Accessories">Apparel & Accessories</option>', o += '<option value="Auto">Auto</option>', o += '<option value="Banking">Banking</option>', o += '<option value="Beauty & Cosmetics">Beauty & Cosmetics</option>', o += '<option value="Biotechnology">Biotechnology</option>', o += '<option value="Chemical">Chemical</option>', o += '<option value="Communications">Communications</option>', o += '<option value="Computer">Computer</option>', o += '<option value="Construction">Construction</option>', o += '<option value="Consulting">Consulting</option>', o += '<option value="Consumer Products">Consumer Products</option>', o += '<option value="Education">Education</option>', o += '<option value="Electronics">Electronics</option>', o += '<option value="Employment">Employment</option>', o += '<option value="Energy">Energy</option>', o += '<option value="Entertainment & Recreation">Entertainment & Recreation</option>', o += '<option value="Fashion">Fashion</option>', o += '<option value="Financial Services">Financial Services</option>', o += '<option value="Fine Arts">Fine Arts</option>', o += '<option value="Food & Beverage">Food & Beverage</option>', o += '<option value="Green Technology">Green Technology</option>', o += '<option value="Health">Health</option>', o += '<option value="Information">Information</option>', o += '<option value="Information Technology">Information Technology</option>', o += '<option value="Insurance">Insurance</option>', o += '<option value="Journalism & News">Journalism & News</option>', o += '<option value="Legal Services">Legal Services</option>', o += '<option value="Manufacturing">Manufacturing</option>', o += '<option value="Media & Broadcasting">Media & Broadcasting</option>', o += '<option value="Medical Devices & Supplies">Medical Devices & Supplies</option>', o += '<option value="Motion Pictures & Video">Motion Pictures & Video</option>', o += '<option value="Music">Music</option>', o += '<option value="Pharmaceutical">Pharmaceutical</option>', o += '<option value="Public Administration">Public Administration</option>', o += '<option value="Public Relations">Public Relations</option>', o += '<option value="Publishing">Publishing</option>', o += '<option value="Rail">Rail</option>', o += '<option value="Real Estate">Real Estate</option>', o += '<option value="Retail">Retail</option>', o += '<option value="Service">Service</option>', o += '<option value="Technology">Technology</option>', o += '<option value="Telecommunications">Telecommunications</option>', o += '<option value="Tourism">Tourism</option>', o += '<option value="Transportation">Transportation</option>', o += '<option value="Travel">Travel</option>', o += '<option value="Utilities">Utilities</option>', o += '<option value="Video Games">Video Games</option>', o += '<option value="Web Services">Web Services</option>', o += '<option value="Nonprofit">Nonprofit</option>', o += '<option value="Customer Service">Customer Service</option>', o += '<option value="Human Resources">Human Resources</option>', o += '<option value="Various">Various</option>', o += '<option value="Arts">Arts</option>', o += '<option value="Other - See Bio">Other - See Bio</option>', o += '<option value="Government">Government</option>', o += "</select>", o += "</div>", o += '<div class="col-md-4 col-sm-6 col-xs-12">', o += '<input type="text" class="form-control" id="search_keyword" placeholder="Keyword" style="max-width: 250px;" />', o += '<p style="max-width: 250px;font-size:12px;margin-top: 16px;">*Keyword search will search through user bio, company, and title data.</p>', o += "</div>", o += '<div class="clearfix"></div>', o += '<div class="col-md-12">', o += '<p id="showMoreSearch" style="font-size:18px;color: rgb(92, 127, 146);cursor:pointer;margin-bottom: 24px;"><i id="moreSearchIcon" class="fa fa-plus"></i> <b>See more search options</b></p>', o += "</div>", o += '<div class="clearfix"></div>', o += '<div class="moresearch" style="height:0px; overflow-y:auto;">', o += '<div class="row" style="margin:0px;">', o += '<div class="col-md-4 col-sm-6">', o += '<input type="text" class="form-control" id="search_city" placeholder="City" style="max-width: 250px;margin-bottom: 20px;" />', o += "</div>", o += '<div class="col-md-4 col-sm-6">', o += '<input type="text" class="form-control" id="search_country" placeholder="Country" style="max-width: 250px;margin-bottom: 20px;" />', o += "</div>", o += "</div>", o += "</div>", o += '<div class="clearfix"></div>', o += '<div class="col-md-12">', o += '<button class="btn btn-orange" style="font-size:18px;font-weight: bold;margin-bottom: 20px;padding-left:20px;padding-right:20px;padding-top:12px;padding-bottom:12px;border-radius: 8px;" onclick="searchPerson()">Search</button> ', o += "</div>", o += "</div>"
+}
+
+function searchPerson() {
+    document.querySelector("#peopleList").style.display = "none";
+    document.querySelector("#loaderModal").style.display = "block";
+    searchMode = 1;
+    fetch("%%%URL_SITE%%%/api/getAllPeopleList", {
+        method: "POST",
+        headers: myHeaders,
+        body: JSON.stringify({
+            "nation_id": %%%NATION_ID%%%,
+            "forum": document.querySelector("#search_forum").value
+        }),
+        cache: "reload"
+    }).then(response => response.json()).then(response => {
+        document.querySelector("#peopleList").style.display = "block";
+        document.querySelector("#loaderModal").style.display = "none";
+        var list = response.data;
+        var options = {
+            shouldSort: true,
+            threshold: 0.6,
+            location: 0,
+            distance: 100,
+            maxPatternLength: 32,
+            minMatchCharLength: 1,
+            keys: [
+            ]
+          };
+          if (document.querySelector('#search_first_name').value != ''){
+              options['keys'][0]="first_name";
+              var fuse = new Fuse(list, options);
+              list = fuse.search(document.querySelector('#search_first_name').value);
+          }
+
+          if (document.querySelector('#search_last_name').value != ''){
+              options['keys'][0]="last_name";
+              var fuse = new Fuse(list, options);
+              list = fuse.search(document.querySelector('#search_last_name').value);
+          }
+
+          if (document.querySelector('#search_industry').value != ''){
+              options['keys'][0]="industry";
+              var fuse = new Fuse(list, options);
+              list = fuse.search(document.querySelector('#search_industry').value);
+          }
+
+          if (document.querySelector('#search_keyword').value != ''){
+              options['keys'][0]="occupation";
+              var fuse = new Fuse(list, options);
+              list = fuse.search(document.querySelector('#search_keyword').value);
+          }
+
+          if (document.querySelector('#search_city').value != ''){
+            const search = capitalize(document.querySelector('#search_city').value);
+            options['keys'][0]="city";
+            options['keys'][0]="state"
+            var fuse = new Fuse(list, options);
+            //list = fuse.search(document.querySelector('#search_city').value);
+            list = fuse.search(search);
+          }
+
+          if (document.querySelector('#search_country').value != ''){
+						const search = capitalize(document.querySelector('#search_country').value);
+            let key = getKeyByValue(isoCountries, search);
+            options['keys'][0]="country_code";
+            var fuse = new Fuse(list, options);
+            list = fuse.search(key);
+          }
+          searchjsonData = list;
+          searchcurPage = 1;
+          var rest_len = (list.length % 50);
+          searchtotalPage = ((list.length - rest_len) / 50);
+          if (rest_len)
+              searchtotalPage ++;
+
+          var start = 1;
+          var end = 50;
+          if (searchtotalPage == 1)
+              end = list.length;
+
+          document.querySelector('#pagenum').value = 1;
+          var searchColorStart = '#DC772A';
+          var searchColorEnd = '#DC772A';
+          if (searchcurPage == 1)
+              searchColorStart = '#76838F';
+
+          if (searchcurPage == searchtotalPage)
+              searchColorEnd = '#76838F';
+
+          var content = '';
+          content += '<div class="row" style="margin-left: 5px;margin-right: 5px;padding: 10px;">';
+          content += '<div class="col-md-8">';
+          content += '<p style="font-size:15px;">Showing ' + list.length + ' profiles</p>';
+          content += '<p style="font-size:14px;"><i id="gotoFirstPage" class="fa fa-angle-double-left" style="color: ' + searchColorStart + ';cursor:pointer;"></i> <i id="gotoPrevPage" class="fa fa-angle-left gotoPrevPage" style="color: ' + searchColorStart + ';cursor:pointer;"></i> Page <span id="searchcurPage">' + searchcurPage + '</span> of ' + searchtotalPage + ' pages, displaying <span id="searchstartend">' + start + '-' + end + '</span> of ' + list.length + ' results <i id="gotoNextPage" class="fa fa-angle-right gotoNextPage" style="color: ' + searchColorEnd + ';cursor:pointer;"></i> <i id="gotoLastPage" class="fa fa-angle-double-right" style="color: ' + searchColorEnd + ';cursor:pointer;"></i></p>';
+          content += '</div>';
+          content += '<div class="col-md-4">';
+          content += '<button id="exportPDF" data-toggle="tooltip" title="Please note: Only your most recent search query will be exported. If you have clicked the &quot;Back&quot; button, please redo your search again before exporting." data-placement="top" class="btn btn-lg orange-tooltip btn-orange" style="font-size: 12px;font-weight: bold; float: right;margin-top:10px;margin-right:5px;">Export PDF</button>';
+          content += '<button id="backtomain" class="btn btn-lg btn-myblue" style="display:none;font-size: 11px;font-weight: bold; float: right;margin-right:5px;margin-top:10px;">Back to Main</button>';
+          content += '</div>';
+          content += '</div>';
+
+          content += '<div class="clearfix"></div>';
+          content += '<div id="personList">'
+          content += '</div>';
+
+          document.querySelector('#peopleList').innerHTML = content;
+          document.querySelector('#backtomain').style.display = 'block';
+          for (var i = 0;i < 50;i ++){
+              addSearchPersonContent(list[i], i);
+          }
+
+    }).catch(error => {
+        document.querySelector("#loaderModal").style.display = "none";
+    });
+}
+
+function searchPersonList() {
+    var o = 50 * (searchcurPage - 1) + 1,
+        a = o + 49;
+    searchcurPage == searchtotalPage && (a = searchjsonData.length), (document.querySelector("#pagenum").value = searchcurPage), (document.querySelector("#searchcurPage").innerHTML = searchcurPage), (document.querySelector("#searchstartend").innerHTML = o + "-" + a), document.querySelector("#personList").innerHTML = "";
+    var e = "#DC772A",
+        t = "#DC772A";
+    1 == searchcurPage && (e = "#76838F"), searchcurPage == searchtotalPage && (t = "#76838F"), document.querySelector("#gotoFirstPage").style.color = e, document.querySelector("#gotoPrevPage").style.color = e, document.querySelector("#gotoNextPage").style.color = t, document.querySelector("#gotoLastPage").style.color = t;
+    for (var i = o - 1; i < a; i++) addSearchPersonContent(searchjsonData[i], i)
+}
+
+function setCallPeopleUrl_New() {
+
+    document.querySelector("#peopleList").style.display = "none";
+    document.querySelector("#loaderModal").style.display = "block";
+    fetch("%%%URL_SITE%%%/api/getPeopleList", {
+        method: 'POST',
+        headers: myHeaders,
+        body: JSON.stringify({
+            "nation_id": %%%NATION_ID%%%,
+            "page": curPage
+        })
+        //cache: !1
+    }).then(response => response.json()).then(response => {
+        document.querySelector("#peopleList").style.display = "block";
+
+        var a = response.data,
+            e = {
+                shouldSort: !0,
+                threshold: .6,
+                location: 0,
+                distance: 100,
+                maxPatternLength: 32,
+                minMatchCharLength: 1,
+                keys: []
+            };
+        if (curPage !== 1){
+            a = a.slice(((curPage-1)*50))
+        }
+        jsonData = a;
+
+
+        searchjsonData = a, searchcurPage = 1;
+        var t = totalCnt % dominolink.itemsPerPage;
+        searchtotalPage = (totalCnt - t) / dominolink.itemsPerPage, t && searchtotalPage++;
+        var i = dominolink.itemsPerPage;
+        1 == searchtotalPage && (i = a.length), (document.querySelector("#pagenum").value = 1);
+        var n = "#DC772A",
+            s = "#DC772A";
+        1 == searchcurPage && (n = "#76838F"), searchcurPage == searchtotalPage && (s = "#76838F");
+        var r = "";
+        r += '<div class="row" style="margin-left: 5px;margin-right: 5px;padding: 10px;">',
+            r += '<div class="col-md-8">', r += '<p style="font-size:15px;">Showing ' + totalCnt + " profiles</p>",
+            r += '<p style="font-size:14px;"><i id="gotoFirstPage" class="fa fa-angle-double-left" style="color: ' + n + ';cursor:pointer;"></i> <i id="gotoPrevPage" class="fa fa-angle-left gotoPrevPage" style="color: ' + n + ';cursor:pointer;"></i> Page <span id="searchcurPage">' + curPage + "</span> of " + searchtotalPage + ' pages, displaying <span id="searchstartend">1-' + i + "</span> of " + totalCnt + ' results <i id="gotoNextPage" class="fa fa-angle-right gotoNextPage" style="color: ' + s + ';cursor:pointer;"></i> <i id="gotoLastPage" class="fa fa-angle-double-right" style="color: ' + s + ';cursor:pointer;"></i></p>', r += "</div>", r += '<div class="col-md-4">',
+            r += '<button id="exportPDF" onclick="exportToPDF()" class="btn btn-lg btn-orange tooltip-js" style="font-size: 12px;font-weight: bold; float: right;margin-top:10px;margin-right:5px; white-space: break-spaces;"><span class="tooltiptext">Please note: Only your most recent search query will be exported. If you have clicked the &quot;Back&quot; button, please redo your search again before exporting.</span>Export PDF</button>',
+            r += '<button id="backtomain" class="btn btn-lg btn-myblue" style="display:none;font-size: 11px;font-weight: bold; float: right;margin-right:5px;margin-top:10px;">Back to Main</button>',
+            r += "</div>", r += "</div>", r += '<div class="clearfix"></div>', r += '<div id="personList">',
+            r += "</div>", (document.querySelector("#peopleList").innerHTML = r), (document.querySelector("#backtomain").style.display = "none");
+        for (var l = 0; l < dominolink.itemsPerPage; l++) addSearchPersonContent(a[l], l)
+        document.querySelector("#loaderModal").style.display = "none";
+        document.querySelector("#pagenum").value = curPage;
+        /*document.querySelector("#peopleList").style.display = "block";
+
+        var a = response.data;
+        jsonData = a;
+        totalCnt = a.length;
+
+        var e = 1 + 50 * (curPage - 1),
+            t = e + 49;
+        t > totalCnt && (t = totalCnt), document.querySelector("#pagenum").value = curPage;
+        var i = "#DC772A",
+            n = "#DC772A";
+        1 == curPage && (i = "#76838F"), curPage == totalPage && (n = "#76838F");
+        var s = "";
+        //s += '<div class="row" style="margin-left: 5px;margin-right: 5px;padding: 10px;">', s += '<div class="col-md-8">', s += '<p style="font-size:15px;">Showing ' + totalCnt + " profiles</p>", s += '<p style="font-size:14px;"><i id="gotoFirstPage" class="fa fa-angle-double-left" style="color: ' + i + ';cursor:pointer;"></i> <i id="gotoPrevPage" class="fa fa-angle-left gotoPrevPage" style="color: ' + i + ';cursor:pointer;"></i> Page <span id="searchcurPage">' + curPage + "</span> of " + totalPage + ' pages, displaying <span id="searchstartend">' + e + "-" + t + "</span> of " + totalCnt + ' results <i id="gotoNextPage" class="fa fa-angle-right gotoNextPage" style="color: ' + n + ';cursor:pointer;"></i> <i id="gotoLastPage" class="fa fa-angle-double-right" style="color: ' + n + ';cursor:pointer;"></i></p>', s += "</div>", s += '<div class="col-md-4">', s += '<button id="exportPDF" data-toggle="tooltip" title="Please note: Only your most recent search query will be exported. If you have clicked the &quot;Back&quot; button, please redo your search again before exporting." data-placement="top" class="btn btn-lg orange-tooltip btn-orange" style="font-size: 12px;font-weight: bold; float: right;margin-top:10px;margin-right:5px;">Export PDF</button>', s += "</div>", s += "</div>", s += '<div class="clearfix"></div>', s += '<div id="personList">', s += "</div>", document.querySelector("#peopleList").innerHTML = s, document.querySelector("#backtomain").style.display = "block";
+        for (var r = 0; r < 50; r++) addSearchPersonContent(a[r], r)*/
+    }).catch(error => {
+        document.querySelector("#loaderModal").style.display = "none";
+    });
+}
+
+function addSearchPersonContent(person, index) {
+
+    let personIcon = 'fa fa-female';
+    if (person['sex'] === 'M'){
+        personIcon = 'fa fa-male';
+    }
+
+    let content = '';
+    content += '<div class="person_' + index + ' row" style="margin-top:20px;border-bottom: 1px solid lightgrey;padding:10px;margin-left: 5px;margin-right: 5px;">';
+    content += '<div class="col-md-2 col-sm-2 col-xs-4">';
+    content += '<img id="perImg_' + index + '" src="' + person['profile_image'] + '" width="80%;" />';
+    content += '</div>';
+    content += '<div id="person_simple_' + index + '" class="col-md-7 col-sm-7 col-xs-8">';
+    content+= '<p style="font-size:14px;"><b>',
+    content+= canShow('first_name') ? `${person.first_name} `: '',
+    content+= canShow('last_name') ? person.last_name : '',
+    content+= '</b></p>';
+    if (person['occupation'] != null && person['occupation'] != ''){
+        var employer = '';
+        if (person['employer'] != null && person['employer'] != '' && person['employer'] != undefined)
+            employer = ', ' + person['employer'];
+        content += '<p style="color:grey;text-transform:capitalize"><i class="' + personIcon + '"></i> ' + person['occupation'] + employer + '</p>';
+    }
+    var country_index = 0;
+    var total_country = '';
+    if (person['state'] != null && person['state'] != ''){
+        if (isoStates.hasOwnProperty(person['state']))
+            total_country = isoStates[person['state']];
+        else
+            total_country += person['state'];
+        country_index = 1;
+    }
+    if (canShow('country') && person['country'] != '' && person['country'] != null){
+        total_country += (country_index == 0 ? isoCountries[person['country']] : ', ' + isoCountries[person['country']]);
+    }
+    if (total_country != ''){
+        content += '<p style="color:grey;"><i class="fa fa-map-marker"></i> ' + total_country + '</p>';
+    }
+    if (person['industry'] != null && person['industry'] != '' && person['industry'] != undefined){
+        content += '<p style="color:grey;"><i class="fa fa-list"></i> ' + person['industry'] + '</p>';
+    }
+    content += '<p style="color:grey;">'
+    if(canShow('email') && person['email'] != null && person['email'] != '' && person['email'] != undefined){
+        content += '<i class="fa fa-envelope" style="padding-right: 4px;"></i>';
+    }
+    if (person['twitter'] != null && person['twitter'] !== '' && person['twitter'] != undefined){
+        content += '<i class="fa fa-twitter"></i> ';
+    }
+    if (person['facebook'] == true){
+        content += '<i class="fa fa-facebook-f"></i> ';
+    }
+
+    if (person['linked_in'] != null){
+        content += '<i class="fa fa-linkedin"></i>';
+    }
+    content += '</p>';
+    content += '</div>';
+    content += '<div class="col-md-3 col-sm-3">';
+    content += '<button class="btn btn-myblue" style="font-weight: bold;float: right;" id="viewDetail_' + person['person_id'] + '" data-picture="' + person['profile_image'] + '" onclick="viewPersonDetail(' + person['person_id'] + ')">View profile</button>';
+    content += '</div>';
+    content += '</div>';
+    document.querySelector("#personList").innerHTML += content;
+}
+window.onload = async function() {
+    addStyle(styles);
+    var srcStyle = document.createElement("link");
+    srcStyle.rel = "stylesheet", srcStyle.href = "%%%URL_SITE%%%/assets/dominolink.min.css", document.getElementsByTagName("head")[0].appendChild(srcStyle)
+    srcStyle = document.createElement("link");
+    srcStyle.rel = "stylesheet", srcStyle.href = "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css", document.getElementsByTagName("head")[0].appendChild(srcStyle)
+    var o = new Image;
+    o.onError = function() {
+        alert('Cannot load image: "' + url + '"')
+    }, o.onload = function() {
+        imgData = o
+    }, o.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAACwCAYAAAAYJt48AAAGPUlEQVR4Xu1c+UtVXRTdVzOtNDUbzFQcUEtKK8lswCGcR0SL7E+KqJ8SDYJ+kKBeGophQWHOgjiUlUYpKZaWNmivHEpPrN337L1MnuA5933g2SDi9XHW3evsd+66e599DKvVKug/+/79O7m5uZGXl5ftkrLfhg14YGCAGhoaaPPmzVRcXEz79u1TBoqBl4G7u7vp8ePHZBgG5eXlUUxMjDnAX758oSdPnpCnpycdPHiQvL291QN3dXVRc3MzCfF7ujHPOTk5dODAAWXgxtDQkLh79y7t2LGDRkdHycPDg3bv3k1Wq5XOnTtHvr6+SsCN69evCwSUj48P9fX1sbcnTpyg169fk7+/P+Xn56sBrq+vF7t27aLGxkaam5tjEHiZnJxMk5OTfBPu7u7SwY3p6WlRV1dHQ0NDDoPHxcVRZmamdEDbgPx1wsLx7NkzDjDMcUZGBkVERChdSJa/xwB+8OABbdq0iYqKiigsLEyZtw4LyMzMDLW3t/PKdfr0af6t0pY9Vgnyr7E1sGmMa6o11coY2KDBNT4+Tr29vfTjxw+WO9HR0cooXn4sdnR0iEePHtHPnz/5GlTm0aNHKS0tTSm4cfXqVQHlUVJSQtu3b6d79+7R2NgY/x0UFKQM3Lh48aKAeMczGNbf38/P5aysLDp06JA64IqKCvHt2zfzPW5qahJ4g7BpariI4CosLFTmLcfSxMSEuH37Nn369ImBIH0KCgooMjJSLTDEXltbG3V2drLXoaGhTLsKSWvvCa9c09PTdOvWLYLaxAtbVFSUUm8dxB7enz58+MDRDLpV2wZdq1XTquWtQ1SbTbeOatMY11SbR7XFYhEhISGc14LaXM2QWE1JSaGtW7dKuTnj0qVLAooDj8a/Mz/2CEgxlpWVSUu4GW/fvhXIXy4tLdHCwsKq3kD2IgmHBJwMY5W5f/9+lj5v3rxZdUxQfOHCBfLz85OBS67z2GVz7LKodhmwy4LLvgojJVzXOIh+SKyRqPV/TFO9fg7XOIKmeo1Erf9jmur1c7jGEVxHdVVVlXj37p3T+0R6MTc3V1ohzLh8+bJAlc2ZIc8JeQulKcOM1tZWzuzZsrf/GhRZoNTUVDp8+LAMTB7DqK2tZUH/8OFD+vjx44qBAwICuJz78uVLSkhIkCfoIX0g0lGofv/+PSfMIe5xDR7u2bOHWlpa+JpUXQ1gZPTwpoBiNbJ6L168oNjYWHr16hU9ffqUU43SBb0N2MYxALA5AVk+3JD9dSUeO4sa6R7fuXNHDA8PO8Pl0n16erq0PKfrVi6tq51OtqQP6DmWRKTzYTTVzjmS9IkNSPXw8LDA7kSoC+zbM8uMa9eusco0o4Jq7xSnFPHA37JlC5WWlrLUMcOMyspKMTU1xbsRVZduHTy2Fa6TkpLo1KlTZjj7W95OTU0Ji8VCnz9/5hKuzevFxUWlNWT+HoNq7EbFXgF4vnPnTrp//z7t3buXt2WoiPblBQQZ+traWlaX9oZdxyjdyzaHlQui/fnz54QiNqiHp9j8GxgYKBv3z/5q6SM7GXADrtVa3poVZDq4zGJaLyCmMe1CqrXK1CpTVZxrlalVpqrYcuGSqcWeskn9a2At9sxiWn+dTGNaU20i1eg/ti/fYsfimTNnlN8BV8xRLUUvKrqAkOFBV71qM6qrqwV6I2AARne9GalFDWwe1eXl5QLN7Gjxnp2d5fZuZHFVm3HlyhWB7j18jVCbQInAFGCtuVTPrW18rbnMYloLAdOY1lT/z6hGIQw1ZsgiWV2cTleuwcFBPhkFJnWX4mpPJ/TGoPN6YmKCQbGrDcft4Lktw1Z4jOo52oJRY4TyxBE7tlK+zOLmMjDmsaenh49fQfsRAMPDw/msH/zv5MmT/CPLGBgeoV5s67oODg7mxna0+eMmVBypZNy4cUOMjIzwFkhskUTF/Pjx44Szfr5+/coOohFLdnu/0dfXJ7DhE/XiI0eO0LFjx6impsYhtQjaz58/T9u2bZPF9J8lc35+nimtr69f0dsG6s+ePSt1z4BDVOOMrps3b/KZEZC56OzDFOC8ruzsbGneYqAVwGhyT0xMZNrxFolue3gcHx+vDhgvbWiog8ZWbU6XTFU3oIFVMbtiXE21ploZAy4Lrl8hptt9Q3EUqwAAAABJRU5ErkJggg==";
+
+    await fetch("%%%URL_SITE%%%/api/getPDFLogo", {
+        method: 'POST',
+        headers: myHeaders,
+        body: JSON.stringify({
+            "nation_id": %%%NATION_ID%%%
+        }),
+    }).then(response => response.json()).then(response => {
+        pdfLogo = response.data
+    })
+
+    var a = new Image;
+    a.onError = function() {
+        alert('Cannot load image: "' + url + '"')
+    }, a.onload = function() {
+        img_logo_data = a, img_logo_data_width = a.width, img_logo_data_height = a.height
+    }, a.src = `data:image/png;base64,${pdfLogo}`
+
+    setTimeout(init(), 1000);
+    document.querySelector("#showMoreSearch").addEventListener('click', function() {
+        document.querySelector("#moreSearchIcon").classList.contains("fa-plus") ? (document.querySelector("#moreSearchIcon").classList.remove("fa-plus"), document.querySelector(".moresearch").style.height = "60px", document.querySelector("#moreSearchIcon").classList.add("fa-minus")) : document.querySelector("#moreSearchIcon").classList.contains("fa-minus") ? (document.querySelector("#moreSearchIcon").classList.remove("fa-minus"), document.querySelector(".moresearch").style.height = "0px", document.querySelector("#moreSearchIcon").classList.add("fa-plus")) : "";
+    });
+    if (document.querySelector("#backtomain") != null) {
+        document.querySelector("#backtomain").addEventListener('click', function() {
+            searchMode = 0, document.querySelector("#backtomain").style.display = "none", setCallPeopleUrl_New()
+        });
+    }
+    document.addEventListener('click',function(e){
+        if(e.target && e.target.id== 'backtomain'){
+            document.querySelector("#search_last_name").value = '';
+            document.querySelector("#search_first_name").value = '';
+            document.querySelector("#search_industry").value = '';
+            document.querySelector("#search_forum").value = '';
+            document.querySelector("#search_keyword").value = '';
+            document.querySelector("#search_city").value = '';
+            document.querySelector("#search_country").value = '';
+
+            searchMode = 0, document.querySelector("#backtomain").style.display = "none", setCallPeopleUrl_New();
+        }
+    });
+
+    if (document.querySelector("#exportPDF") != null) {
+
+        document.querySelector("#exportPDF").addEventListener('click', function() {
+
+            var a = new jsPDF("p", "pt", "letter");
+            if (a.setDrawColor(0), a.setFillColor(pdf_back_color), a.rect(0, 270, 700, 1e3, "F"), a.setDrawColor(255), a.setFillColor(255), a.rect(0, 0, 700, 270, "F"), a.setFontSize(50), a.setFontType("bold"), img_logo_data_width) {
+                var e = 100,
+                    t = 100 * img_logo_data_width / img_logo_data_height;
+                t > 200 && (t = 200, e = 200 * img_logo_data_height / img_logo_data_width), a.addImage(img_logo_data, "JPEG", 300 - t, 130 - e, 2 * t, 2 * e, "logo")
+            } else a.text("LOGO", 300, 160, "center");
+            a.setFontSize(50), a.setFontType("bold"), a.setTextColor(255, 255, 255), a.text("Member Roster", 300, 350, "center");
+            var i = new Date;
+            a.setFontSize(30);
+            var n = i.getDate();
+            n < 10 ? a.text(months[i.getMonth()] + " 0" + n + ", " + i.getFullYear(), 300, 450, "center") : a.text(months[i.getMonth()] + " " + n + ", " + i.getFullYear(), 300, 450, "center"), a.addPage(), a.setFontSize(15), a.setTextColor(118, 131, 143), a.setFontType("bolditalic"), a.text(60, 70, "About this document"), a.text(60, 200, "Disclaimer"), a.setFontType("normal"), a.setFontSize(14), a.setTextColor(185, 192, 198), lines = a.splitTextToSize(pdf_intro, 500), a.text(60, 100, lines), lines = a.splitTextToSize(pdf_declaimer, 500), a.text(60, 230, lines), a.addPage();
+            var s = 0,
+                r = 0;
+            r = 0 == searchMode ? jsonData.length : searchjsonData.length;
+            for (var l = 0; l < r; l++) {
+                var d;
+                d = 0 == searchMode ? jsonData[l] : searchjsonData[l], l && l % 4 == 0 && (a.addPage(), s = 0), a.setDrawColor(0), a.setFillColor(244, 244, 244), a.rect(20, 20 + s, 580, 165, "F"), 0 == l ? a.addImage(imgData, "JPEG", 35, 52 + s, 20, 120, "Icon1") : a.addImage("Icon1", "JPEG", 35, 52 + s, 20, 120), a.setFontSize(11), a.setFontType("bold"), a.setTextColor(0, 0, 0), "" == d.first_name && "" == d.last_name ? a.text(30, 40 + s, "N/A") : a.text(30, 40 + s, d.first_name + " " + d.last_name), a.setFontSize(10), a.setFontType("Normal"), a.setTextColor(100);
+                var c = d.occupation;
+                null == c && (c = "N/A"), a.text(48, 60 + s, c);
+                var p = d.country;
+                a.text(48, 75 + s, "Location: " + isoCountries[p]);
+                var u = "",
+                    m = 0;
+                "" != d.home_address && null != d.home_address && (u += 0 == m ? d.home_address : ", " + d.home_address, m = 1), "" != d.address2 && null != d.address2 && (u += 0 == m ? d.address2 : ", " + d.address2, m = 1), "" != d.address3 && null != d.address3 && (u += 0 == m ? d.address3 : ", " + d.address3, m = 1), "" != d.city && null != d.city && (u += 0 == m ? d.city : ", " + d.city, m = 1), "" != d.state && null != d.state && (u += 0 == m ? d.state : ", " + d.state, m = 1), "" != d.zip && null != d.zip && (u += 0 == m ? d.zip : ", " + d.zip, m = 1), "" != d.country_code && null != d.country_code && (u += 0 == m ? d.country_code : ", " + d.country_code, m = 1), "" == u && (u = "N/A"), a.text(48, 164 + s, "Home address: " + u), null == d.industry ? a.text(48, 89 + s, "Industry: N/A") : a.text(48, 89 + s, "Industry: " + d.industry), a.text(48, 104 + s, "Email: " + d.email);
+                var g = "N/A";
+                null != d.phone && (g = d.phone), a.text(48, 119 + s, "Phone: " + g);
+                var h = "N/A";
+                null != d.work_phone && (h = d.work_phone), a.text(48, 134 + s, "Work Phone: " + h);
+                var v = "N/A";
+                null != d.mobile && (v = d.mobile), a.text(48, 149 + s, "Mobile phone: " + v), s += 190
+            }
+            var y = (i = new Date).getMonth() + 1;
+            a.save("Directory_Export_" + y + "." + i.getDate() + "." + i.getFullYear() + ".pdf")
+        });
+    }
+    if (document.querySelector("#gotoFirstPage") != null) {
+        document.querySelector("#gotoFirstPage").addEventListener("click", function() {
+            0 == searchMode ? 1 != curPage && (curPage = 1, setCallPeopleUrl_New()) : 1 != searchcurPage && (searchcurPage = 1, searchPersonList())
+        });
+    }
+    if (document.querySelector("#gotoLastPage") != null) {
+        document.querySelector("#gotoLastPage").addEventListener("click", function() {
+            0 == searchMode ? curPage != totalPage && (curPage = totalPage, setCallPeopleUrl_New()) : searchcurPage != searchtotalPage && (searchcurPage = searchtotalPage, searchPersonList());
+        });
+    }
+    if (document.querySelector(".gotoPrevPage") != null) {
+        document.querySelector(".gotoPrevPage").addEventListener("click", function(o) {
+            0 == searchMode ? null != totalPage ? curPage > 1 && (curPage--, setCallPeopleUrl_New()) : null != prev_url && (curPage--, setCallPeopleUrl_Old(prev_url)) : searchcurPage > 1 && (searchcurPage--, searchPersonList())
+        });
+    }
+    if (document.querySelector(".gotoNextPage") != null) {
+        document.querySelector(".gotoNextPage").addEventListener("click", function() {
+
+            0 == searchMode ? curPage < totalPage && (curPage++, setCallPeopleUrl_New()) : searchcurPage < searchtotalPage && (searchcurPage++, searchPersonList())
+        });
+    }
+    if (document.querySelector("#pagenum") != null) {
+        document.querySelector("#pagenum").addEventListener("keydown", function() {
+            if (13 == o.keyCode) {
+                if (isNaN(document.querySelector("#pagenum").value)) return void(document.querySelector("#pagenum").value = curPage);
+                var a = Number(document.querySelector("#pagenum").value);
+                if (0 == searchMode) {
+                    if (a < 1 || a > totalPage) return void(document.querySelector("#pagenum").value = curPage);
+                    curPage = a, setCallPeopleUrl_New()
+                } else {
+                    if (a < 1 || a > searchtotalPage) return void(document.querySelector("#pagenum").value = searchcurPage);
+                    searchcurPage = a, searchPersonList()
+                }
+            }
+        });
+    }
+}
+var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+function viewPersonDetail(id) {
+    let a = document.querySelector("#viewDetail_" + id).getAttribute("data-picture");
+    document.querySelector("#loaderModal").style.display = "block";
+    fetch("%%%URL_SITE%%%/api/getPersonDetail", {
+        method: 'POST',
+        headers: myHeaders,
+        body: JSON.stringify({
+            "nation_id": %%%NATION_ID%%%,
+            "person_id": id
+})
+}).then(response => response.json()).then(response => {
+        document.querySelector("#loaderModal").style.display = "none";
+        const person = response;
+        document.querySelector("#person_image").setAttribute("src", a);
+        let names = '';
+        names += canShow('first_name') ? `${person.first_name} `: '';
+        names += canShow('last_name') ? `${person.last_name}` : '';
+        document.querySelector("#person_name").innerHTML = names;
+        let person_icon = "";
+        canShow("email") && "" !== person.email && (person_icon += '<a class="icon-orange" href="mailto:' + person.email + '"><i class="fa fa-envelope"></i> </a>');
+        null != person.linkedin_id && (person_icon += '<a class="icon-orange" target="_blank" href="' + person.linkedin_profile + '"><i class="fa fa-linkedin"></i></a>');
+        document.querySelector("#person_icon").innerHTML = person_icon;
+        if (person.occupation !== '' && person.occupation != null){
+            let personIcon = 'fa fa-female';
+            if (person['sex'] === 'M'){
+                personIcon = 'fa fa-male';
+            }
+            let employer = '';
+            if (person.employer != null && person.employer !== '' && person.employer !== undefined)
+                employer = ', ' + person.employer;
+            document.querySelector("#person_occupation").innerHTML = '<p style="color:grey;font-size:14px;text-transform:capitalize"><i class="' + personIcon + '"></i> ' + person.occupation + employer + "</p>";
+        }
+        let country = "";
+        let total_country = "";
+        let country_index = 0;
+        null != person.state && "" !== person.state && (isoStates.hasOwnProperty(person.state) ? total_country += isoStates[person.state] : total_country += person.state, country_index = 1);
+        canShow("country") && isoCountries.hasOwnProperty(person.country_code) && (country = isoCountries[person.country_code]), "" !== country && null != country && (total_country += 0 === country_index ? country : ", " + country);
+        "" !== total_country ? document.querySelector("#person_country").innerHTML = '<i class="fa fa-map-marker"></i> ' + total_country : document.querySelector("#person_country").innerHTML = "";
+        "" !== person.industry && null != person.industry && null != person.industry ? document.querySelector("#person_industry").innerHTML = '<i class="fa fa-list"></i> ' + person.industry : document.querySelector("#person_industry").innerHTML = "";
+        "" !== person.boards && null != person.boards && null != person.boards ? document.querySelector("#person_boards").innerHTML = "Boards:<br/>" + person.boards : document.querySelector("#person_boards").innerHTML = "";
+        canShow("email") && "" !== person.email && null != person.email ? document.querySelector("#person_email").innerHTML = '<i class="fa fa-envelope"></i> Email: <b onclick="sendEmail(\'' + person.email + '\')" class="text-blue">' + person.email + "</b>" : document.querySelector("#person_email").innerHTML = "";
+        canShow("phone") && "" !== person.phone && null != person.phone ? document.querySelector("#person_phone").innerHTML = '<i class="fa fa-phone"></i> Phone: ' + person.phone + " " : document.querySelector("#person_phone").innerHTML = "";
+        "" !== person.work_phone_number && null != person.work_phone_number ? document.querySelector("#person_work_phone").innerHTML = '<i class="fa fa-phone"></i> Work: ' + person.work_phone_number + " " : document.querySelector("#person_work_phone").innerHTML = "";
+        "" !== person.mobile && null != person.mobile ? document.querySelector("#person_mobile").innerHTML = '<i class="fa fa-mobile"></i> Mobile: ' + person.mobile + " " : document.querySelector("#person_mobile").innerHTML = "";
+
+        if (person['home_address'] != null){
+            let home_address = '';
+            let myindex = 0;
+
+            if(person['home_address'].hasOwnProperty('address1')){
+                if (person['home_address']['address1'] != '' && person['home_address']['address1'] != null){
+                    home_address += (myindex == 0 ? person['home_address']['address1'] : ', ' + person['home_address']['address1']);
+                    myindex = 1;
+                }
+                if (person['home_address']['address2'] != '' && person['home_address']['address2'] != null){
+                    home_address += (myindex == 0 ? person['home_address']['address2'] : ', ' + person['home_address']['address2']);
+                    myindex = 1;
+                }
+                if (person['home_address']['address3'] != '' && person['home_address']['address3'] != null){
+                    home_address += (myindex == 0 ? person['home_address']['address3'] : ', ' + person['home_address']['address3']);
+                    myindex = 1;
+                }
+                if (person['home_address']['city'] != '' && person['home_address']['city'] != null){
+                    home_address += (myindex == 0 ? person['home_address']['city'] : ', ' + person['home_address']['city']);
+                    myindex = 1;
+                }
+                if (person['home_address']['state'] != '' && person['home_address']['state'] != null){
+
+                    if(myindex === 0){
+                        if(isoStates.hasOwnProperty(person['home_address']['state'])) {
+                            home_address += isoStates[person['home_address']['state']]
+                        } else{
+                            home_address += person['home_address']['state']
+                        }
+                    } else{
+                        if(isoStates.hasOwnProperty(person['home_address']['state'])) {
+                            home_address += ', '+isoStates[person['home_address']['state']]
+                        } else{
+                            home_address += ', '+person['home_address']['state']
+                        }
+                    }
+                    myindex = 1;
+                }
+                if (person['home_address']['zip'] != '' && person['home_address']['zip'] != null){
+                    home_address += (myindex == 0 ? person['home_address']['zip'] : ', ' + person['home_address']['zip']);
+                    myindex = 1;
+                }
+                if (person['home_address']['country_code'] != '' && person['home_address']['country_code'] != null){
+                    home_address += (myindex == 0 ? person['home_address']['country_code'] : ', ' + isoCountries[person['home_address']['country_code']]);
+                    myindex = 1;
+                }
+
+                if (home_address != ''){
+                    document.querySelector('#person_home_address').innerHTML = '<i class="fa fa-send"></i> Home address: ' + home_address;
+                }
+            } else {
+                if (person['home_address'] != '' && person['home_address'] != null){
+                    home_address += (myindex == 0 ? person['home_address'] : ', ' + person['home_address']);
+                    myindex = 1;
+                }
+                if (person['address2'] != '' && person['address2'] != null){
+                    home_address += (myindex == 0 ? person['address2'] : ', ' + person['address2']);
+                    myindex = 1;
+                }
+                if (person['address3'] != '' && person['address3'] != null){
+                    home_address += (myindex == 0 ? person['address3'] : ', ' + person['address3']);
+                    myindex = 1;
+                }
+                if (person['city'] != '' && person['city'] != null){
+                    home_address += (myindex == 0 ? person['city'] : ', ' + person['city']);
+                    myindex = 1;
+                }
+                if (person['state'] != '' && person['state'] != null){
+
+                    if(myindex === 0){
+                        if(isoStates.hasOwnProperty(person['state'])) {
+                            home_address += isoStates[person['state']]
+                        } else{
+                            home_address += person['state']
+                        }
+                    } else{
+                        if(isoStates.hasOwnProperty(person['state'])) {
+                            home_address += ', '+isoStates[person['state']]
+                        } else{
+                            home_address += ', '+person['state']
+                        }
+                    }
+                    myindex = 1;
+                }
+                if (person['zip'] != '' && person['zip'] != null){
+                    home_address += (myindex == 0 ? person['zip'] : ', ' + person['zip']);
+                    myindex = 1;
+                }
+                if (person['country_code'] != '' && person['country_code'] != null){
+                    home_address += (myindex == 0 ? person['country_code'] : ', ' + isoCountries[person['country_code']]);
+                    myindex = 1;
+                }
+
+                if (home_address != ''){
+                    document.querySelector('#person_home_address').innerHTML = '<i class="fa fa-send"></i> Home address: ' + home_address;
+                }
+            }
+
+        } else {
+            document.querySelector('#person_home_address').innerHTML =  '';
+        }
+
+        if (person['work_address'] != '' && person['work_address'] != null){
+            let work_address = '';
+            let myindex = 0;
+            if (person['work_address']['address1'] != '' && person['work_address']['address1'] != null){
+                work_address += (myindex == 0 ? person['work_address']['address1'] : ', ' + person['work_address']['address1']);
+                myindex = 1;
+            }
+            if (person['work_address']['address2'] != '' && person['work_address']['address2'] != null){
+                work_address += (myindex == 0 ? person['work_address']['address2'] : ', ' + person['work_address']['address2']);
+                myindex = 1;
+            }
+            if (person['work_address']['address3'] != '' && person['work_address']['address3'] != null){
+                work_address += (myindex == 0 ? person['work_address']['address3'] : ', ' + person['work_address']['address3']);
+                myindex = 1;
+            }
+            if (person['work_address']['city'] != '' && person['work_address']['city'] != null){
+                work_address += (myindex == 0 ? person['work_address']['city'] : ', ' + person['work_address']['city']);
+                myindex = 1;
+            }
+            if (person['work_address']['state'] != '' && person['work_address']['state'] != null){
+                work_address += (myindex == 0 ? person['work_address']['state'] : ', ' + person['work_address']['state']);
+                myindex = 1;
+            }
+            if (person['work_address']['zip'] != '' && person['work_address']['zip'] != null){
+                work_address += (myindex == 0 ? person['work_address']['zip'] : ', ' + person['work_address']['zip']);
+                myindex = 1;
+            }
+            if (person['work_address']['country_code'] != '' && person['work_address']['country_code'] != null){
+                work_address += (myindex == 0 ? person['work_address']['country_code'] : ', ' + person['work_address']['country_code']);
+                myindex = 1;
+            }
+
+            if (work_address != ''){
+                document.querySelector('#person_work_address').innerHTML = '<i class="fa fa-send"></i> Work address: ' + work_address
+            }
+        } else{
+            document.querySelector('#person_work_address').innerHTML =  '';
+        }
+
+        if (canShow('assist_name') && person['assistant_name'] != '' && person['assistant_name'] != null){
+            document.querySelector('#person_assist_name').innerHTML = '<i class="fa fa-user"></i> Assistant Name: ' + person['assistant_name']
+        } else{
+            document.querySelector('#person_assist_name').innerHTML = '';
+        }
+
+        if (canShow('assist_phone') && person['assistant_phone_number'] != '' && person['assistant_phone_number'] != null){
+            document.querySelector('#person_assist_phone').innerHTML = '<i class="fa fa-phone"></i> Assistant Phone: ' + person['assistant_phone_number']
+        } else{
+            document.querySelector('#person_assist_phone').innerHTML = '';
+        }
+
+        if (canShow('assist_email') && person['assistant_email'] != '' && person['assistant_email'] != null){
+            document.querySelector('#person_assist_email').innerHTML = '<i class="fa fa-envelope"></i> Assistant Email: <b onclick="sendEmail(' + "'" + person['assistant_email'] + "'" + ')" class="text-blue">' + person['assistant_email'] + '</b>'
+        }else {
+            document.querySelector('#person_assist_email').innerHTML = '';
+        }
+
+        if("" !== person['twitter'] && null != person['twitter']){
+            document.querySelector("#person_twitter").innerHTML = '<a target="_blank" class="icon-orange" href="https://www.twitter.com/@'+person["twitter"]+'"><i class="fa fa-twitter"></i> </a>';
+        }else{
+            document.querySelector("#person_twitter").innerHTML = '';
+        }
+        if("" !== person['facebook'] && null != person['facebook'] && person['facebook'] != 0){
+            var urlF = "https://www.facebook.com/"+person.facebook;
+            if(person.facebook.startsWith('http')) urlF = person.facebook;
+            document.querySelector("#person_facebook").innerHTML = '<a target="_blank" class="icon-orange" href="'+urlF+'"><i class="fa fa-facebook"></i> </a>';
+        }else{
+            document.querySelector("#person_facebook").innerHTML = ""
+        }
+
+        let bio = '';
+        //let bio_index = 0;
+        if (person['bio'] != '' && person['bio'] != null){
+            bio += person['bio'];
+            //bio_index = 1;
+        }
+        if (person['profile_content'] != '' && person['profile_content'] != null){
+            bio = '';
+            bio = person['profile_content'];
+            //bio += (bio_index == 0 ? person['profile_content'] : '<br/>' + person['profile_content']);
+        }
+        if (bio == ''){
+            document.querySelector(".mybio").style.display = "none";
+        } else{
+            document.querySelector('#person_bio').innerHTML = bio;
+            document.querySelector(".mybio").style.display = "block"
+        }
+        document.querySelector("#personDetail").classList.remove("fade"),
+        document.querySelector("#personDetail").style.display = "block";
+
+    }).catch(error => {
+
+    });
+}
+
+function sendEmail(o) {
+    window.open("mailto:" + o)
+}
+
+function hidePersonDetail(){
+    document.querySelector("#personDetail").style.display = "none";
+}
+function exportToPDF(){
+
+    var a = new jsPDF("p", "pt", "letter");
+    if (a.setDrawColor(0), a.setFillColor(pdf_back_color), a.rect(0, 270, 700, 1e3, "F"), a.setDrawColor(255), a.setFillColor(255), a.rect(0, 0, 700, 270, "F"), a.setFontSize(50), a.setFontType("bold"), img_logo_data_width) {
+        var e = 100,
+            t = 100 * img_logo_data_width / img_logo_data_height;
+        t > 200 && (t = 200, e = 200 * img_logo_data_height / img_logo_data_width), a.addImage(img_logo_data, "JPEG", 300 - t, 130 - e, 2 * t, 2 * e, "logo")
+    } else a.text("LOGO", 300, 160, "center");
+    a.setFontSize(50), a.setFontType("bold"), a.setTextColor(255, 255, 255), a.text("Member Roster", 300, 350, "center");
+    var i = new Date;
+    a.setFontSize(30);
+    var n = i.getDate();
+    n < 10 ? a.text(months[i.getMonth()] + " 0" + n + ", " + i.getFullYear(), 300, 450, "center") : a.text(months[i.getMonth()] + " " + n + ", " + i.getFullYear(), 300, 450, "center"), a.addPage(), a.setFontSize(15), a.setTextColor(118, 131, 143), a.setFontType("bolditalic"), a.text(60, 70, "About this document"), a.text(60, 200, "Disclaimer"), a.setFontType("normal"), a.setFontSize(14), a.setTextColor(185, 192, 198), lines = a.splitTextToSize(pdf_intro, 500), a.text(60, 100, lines), lines = a.splitTextToSize(pdf_declaimer, 500), a.text(60, 230, lines), a.addPage();
+    var s = 0,
+        r = 0;
+    r = 0 == searchMode ? jsonData.length : searchjsonData.length;
+    for (var l = 0; l < r; l++) {
+        var d;
+        d = 0 == searchMode ? jsonData[l] : searchjsonData[l], l && l % 4 == 0 && (a.addPage(), s = 0), a.setDrawColor(0), a.setFillColor(244, 244, 244), a.rect(20, 20 + s, 580, 165, "F"), 0 == l ? a.addImage(imgData, "JPEG", 35, 52 + s, 20, 120, "Icon1") : a.addImage("Icon1", "JPEG", 35, 52 + s, 20, 120), a.setFontSize(11), a.setFontType("bold"), a.setTextColor(0, 0, 0), "" == d.first_name && "" == d.last_name ? a.text(30, 40 + s, "N/A") : a.text(30, 40 + s, d.first_name + " " + d.last_name), a.setFontSize(10), a.setFontType("Normal"), a.setTextColor(100);
+        var c = d.occupation;
+        null == c && (c = "N/A"), a.text(48, 60 + s, c);
+        var p = d.country;
+        a.text(48, 75 + s, "Location: " + isoCountries[p]);
+        var u = "",
+            m = 0;
+        "" != d.home_address && null != d.home_address && (u += 0 == m ? d.home_address : ", " + d.home_address, m = 1), "" != d.address2 && null != d.address2 && (u += 0 == m ? d.address2 : ", " + d.address2, m = 1), "" != d.address3 && null != d.address3 && (u += 0 == m ? d.address3 : ", " + d.address3, m = 1), "" != d.city && null != d.city && (u += 0 == m ? d.city : ", " + d.city, m = 1), "" != d.state && null != d.state && (u += 0 == m ? d.state : ", " + d.state, m = 1), "" != d.zip && null != d.zip && (u += 0 == m ? d.zip : ", " + d.zip, m = 1), "" != d.country_code && null != d.country_code && (u += 0 == m ? isoCountries[d.country_code] : ", " + isoCountries[d.country_code], m = 1), "" == u && (u = "N/A"), a.text(48, 164 + s, "Home address: " + u), null == d.industry ? a.text(48, 89 + s, "Industry: N/A") : a.text(48, 89 + s, "Industry: " + d.industry), a.text(48, 104 + s, "Email: " + d.email);
+        var g = "N/A";
+        null != d.phone && (g = d.phone), a.text(48, 119 + s, "Phone: " + g);
+        var h = "N/A";
+        null != d.work_phone && (h = d.work_phone), a.text(48, 134 + s, "Work Phone: " + h);
+        var v = "N/A";
+        null != d.mobile && (v = d.mobile), a.text(48, 149 + s, "Mobile phone: " + v), s
+        += 190
+    }
+    var y = (i = new Date).getMonth() + 1;
+    a.save("Directory_Export_" + y + "." + i.getDate() + "." + i.getFullYear() + ".pdf")
+}
+function addStyle(styles) {
+    var css = document.createElement('style');
+    css.type = 'text/css';
+    if (css.styleSheet)
+        css.styleSheet.cssText = styles;
+    else
+        css.appendChild(document.createTextNode(styles));
+    document.getElementsByTagName("head")[0].appendChild(css);
+}
+
+function canShow(field){
+    if(!dominolink.show_options.hasOwnProperty(field)) return false;
+    return dominolink.show_options[field];
+}
+
+function getKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+}
+
+function capitalize(str1) {
+    str1 = str1.toLowerCase();
+    return str1.charAt(0).toUpperCase() + str1.slice(1);
+}
